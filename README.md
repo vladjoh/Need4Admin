@@ -1,7 +1,8 @@
 # Need4Admin - Privileged User Scanner (Beta)
 
 A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting
-<img width="2207" height="1157" alt="Skjermbilde 2025-07-19 125129" src="https://github.com/user-attachments/assets/9894956a-fb30-45ed-b359-6eca45d9653c" />
+
+<img width="2222" height="1157" alt="git" src="https://github.com/user-attachments/assets/abbbfac2-7aee-411b-9b85-587218f47e4b" />
 
 ## Report Includes
 - UPN
