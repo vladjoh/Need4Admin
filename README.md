@@ -22,7 +22,10 @@ A PowerShell script to audit privileged users in Microsoft Entra ID and Azure wi
 - Total Azure Eligible Roles
 - Total Hybrid Users
 - Total Users
-- Total Active Users 
+- Total Active Users
+- Highlights Global admin and Owner roles
+- Highlights users without MFA
+- Highlights Hybrid users 
 
 ## Features
 - After script finishes running, it automatically opens an HTML Report in default browser
