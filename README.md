@@ -2,9 +2,6 @@
 
 A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting
 
-![Repo views](https://hits.sh/github.com/vladjoh/Need4Admin_beta.svg?style=flat-square&label=Repo%20views&color=blue)
-![Downloads](https://img.shields.io/github/downloads/vladjoh/Need4Admin/total?label=Downloads)
-
 <img width="2222" height="1157" alt="git" src="https://github.com/user-attachments/assets/abbbfac2-7aee-411b-9b85-587218f47e4b" />
 
 ## Report Includes
