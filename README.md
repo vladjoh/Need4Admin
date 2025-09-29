@@ -48,3 +48,10 @@ The script will automatically:
 - Check for required AZ and Graph modules
 - Install missing modules as CurrentUser if needed
 
+## Issues running script? 
+
+Please remove all modules which script use in Documents folder WindowsPowershell/Modules ( for version 5.1) or in Powershell (for version 7+), empty recycle bin and re-run the script. If it doesn't help, please open an issue 
+
+<img width="435" height="405" alt="image" src="https://github.com/user-attachments/assets/338a5d9f-e935-47de-8097-88609768ea12" />
+
+
