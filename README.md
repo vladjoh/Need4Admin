@@ -48,5 +48,3 @@ The script will automatically:
 - Check for required AZ and Graph modules
 - Install missing modules as CurrentUser if needed
 
-## Notes
-- Beta version - please report any issues
