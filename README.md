@@ -73,7 +73,10 @@ A PowerShell script to audit privileged users in Microsoft Entra ID and Azure wi
 ### Features
 - After script finishes running, it automatically opens an HTML Report in default browser
 - HTML report columns are sortable and resizable
-- Generates both .html and .csv files in the script's folder
+- Generates both .html and .csv files in a secure location outside the repository:
+  - **Windows**: `%USERPROFILE%\Need4Admin-Reports\`
+  - **macOS/Linux**: `$HOME/Need4Admin-Reports/`
+- Reports are automatically excluded from Git to prevent accidental commit of sensitive data
 
 ---
 

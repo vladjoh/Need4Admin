@@ -1,7 +1,0 @@
-"UPN","Entra Active Roles","Entra Eligible Roles","Azure Active Roles","Azure Eligible Roles","Total Roles","Account Status","User Type","MFA Enabled","Last Interactive Sign In","Last Non-Interactive Sign In","Auth Methods","HasPhishingResistant","Is Global Admin"
-"MeganB@M365x97424027.OnMicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","No","2025-08-05 01:55","2025-08-05 02:02","None","False","True"
-"IsaiahL@M365x97424027.OnMicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","No","2025-08-05 01:18","2025-08-05 00:37","None","False","True"
-"AllanD@M365x97424027.OnMicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","No","2025-08-05 01:16","2025-08-05 00:56","None","False","True"
-"admin@M365x97424027.onmicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","Yes","2025-09-28 12:19","2025-09-29 13:19","microsoftAuthenticatorPush, softwareOneTimePasscode","False","True"
-"NestorW@M365x97424027.OnMicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","No","2025-08-05 01:20","2025-08-05 00:56","None","False","True"
-"LidiaH@M365x97424027.OnMicrosoft.com","Global Administrator","None","None","None","1","Active","Cloud","No","2025-08-05 00:32","2025-08-05 00:56","None","False","True"

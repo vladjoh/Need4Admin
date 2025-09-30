@@ -935,8 +935,20 @@ Write-Host "Tenant ID: $reportTenantId" -ForegroundColor Yellow
 Write-Host "Signed in as: $signedInUser" -ForegroundColor Yellow
 Write-Host ""
 
+# Create reports directory outside of repository (cross-platform)
+$reportsDir = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    Join-Path $env:USERPROFILE "Need4Admin-Reports"
+} else {
+    Join-Path $HOME "Need4Admin-Reports"
+}
+
+if (-not (Test-Path $reportsDir)) {
+    New-Item -ItemType Directory -Path $reportsDir -Force | Out-Null
+    Write-Host "Created reports directory: $reportsDir" -ForegroundColor Yellow
+}
+
 # Save CSV file
-$csvPath = ".\Need4Admin-Export-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').csv"
+$csvPath = Join-Path $reportsDir "Need4Admin-Export-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').csv"
 $privilegedUsers | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
 Write-Host "CSV data saved as: $csvPath" -ForegroundColor Green
 
@@ -1154,10 +1166,10 @@ $htmlReport += "<div class='footer'><p>Need4Admin - Microsoft Privileged User Sc
 $htmlReport += "</body>`n</html>"
 
 # Save HTML report
-$reportPath = ".\Need4Admin-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').html"
+$reportPath = Join-Path $reportsDir "Need4Admin-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').html"
 $htmlReport | Out-File -FilePath $reportPath -Encoding UTF8
 
-Write-Host "Report saved as: $reportPath" -ForegroundColor Green
+Write-Host "HTML report saved as: $reportPath" -ForegroundColor Green
 Write-Host ""
 Write-Host "Opening report in default browser..." -ForegroundColor Yellow
 
