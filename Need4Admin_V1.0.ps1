@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0-pesip.1
 
 .GUID ade250cd-cc25-4cdd-8432-ad4c1d4561d3
 
@@ -14,36 +14,40 @@
 
 .LICENSEURI
 
-.PROJECTURI
+.PROJECTURI https://github.com/pesip/Need4Admin
 
 .ICONURI
 
-.EXTERNALMODULEDEPENDENCIES 
+.EXTERNALMODULEDEPENDENCIES
 
 .REQUIREDSCRIPTS
 
 .EXTERNALSCRIPTDEPENDENCIES
 
 .RELEASENOTES
-
+Fork: Cross-platform support for macOS/Linux (pesip)
+- Module path detection for non-Windows systems
+- Cross-platform HTML report opening
+- Enhanced module loading with version conflict resolution
 
 .PRIVATEDATA
 
 #>
 
-<# 
+<#
 
-.DESCRIPTION 
- A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting 
+.DESCRIPTION
+ A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting
 
-#> 
+#>
 
 <#
 ==================================================================================================
 Name:           Need4Admin - Microsoft Privileged User Scanner
 Description:    Privileged User Scanner Script for Entra and Azure
-Version:        1.0
-Author:         Vlad Johansen, 2025
+Version:        1.0-pesip.1 (macOS/Linux fork)
+Original:       Vlad Johansen, 2025
+Fork:           pesip, 2025 (cross-platform compatibility)
 ==================================================================================================
 #>
 
@@ -89,7 +93,7 @@ $PrivRoles = @{
 
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host "Need4Admin - Microsoft Privileged User Scanner" -ForegroundColor Yellow
-Write-Host "Version 1.0" -ForegroundColor Green
+Write-Host "Version 1.0-pesip.1 (macOS/Linux fork)" -ForegroundColor Green
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -1146,7 +1150,7 @@ document.getElementById('searchBox').addEventListener('input', function(e) {
 $htmlReport += "</script>`n"
 
 # Add footer and close HTML
-$htmlReport += "<div class='footer'><p>Need4Admin - Microsoft Privileged User Scanner v1.0 | Author: Vlad Johansen, 2025</p></div>`n"
+$htmlReport += "<div class='footer'><p>Need4Admin - Microsoft Privileged User Scanner v1.0-pesip.1 (macOS/Linux fork) | Original: Vlad Johansen, 2025 | Fork: pesip, 2025</p></div>`n"
 $htmlReport += "</body>`n</html>"
 
 # Save HTML report
