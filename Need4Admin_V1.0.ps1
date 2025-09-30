@@ -108,8 +108,13 @@ $requiredModules = @{
 # Check for module availability
 $missingModules = @()
 
-# Ensure CurrentUser module path is included
-$env:PSModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules;$env:PSModulePath"
+# Ensure CurrentUser module path is included (cross-platform)
+if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    $env:PSModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules;$env:PSModulePath"
+} else {
+    # macOS/Linux
+    $env:PSModulePath = "$HOME/.local/share/powershell/Modules:$env:PSModulePath"
+}
 
 foreach ($modName in $requiredModules.Keys) {
     # Refresh of available modules
@@ -155,32 +160,45 @@ if($missingModules.Count -gt 0) {
 # Import required modules
 Write-Host "Loading modules..." -ForegroundColor Yellow
 
-# Load Az modules first
+# Load Az modules first with MinimumVersion to avoid conflicts
 $azModules = @("Az.Accounts", "Az.Resources")
 foreach ($modName in $azModules) {
     if ($requiredModules.ContainsKey($modName)) {
         try {
-            Import-Module $modName -Force -ErrorAction Stop
+            # Use MinimumVersion instead of RequiredVersion for flexibility
+            Import-Module $modName -MinimumVersion $requiredModules[$modName] -Force -ErrorAction Stop -WarningAction SilentlyContinue
             Write-Host "  ✔ $modName loaded" -ForegroundColor Green
         } catch {
-            Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
-            Exit
+            # Try to import without version requirement as fallback
+            try {
+                Import-Module $modName -Force -ErrorAction Stop -WarningAction SilentlyContinue
+                Write-Host "  ✔ $modName loaded (using available version)" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
+                Exit
+            }
         }
     }
 }
 
 # Then load Microsoft.Graph modules
-$graphModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Users", "Microsoft.Graph.Groups", 
-                  "Microsoft.Graph.Identity.DirectoryManagement", "Microsoft.Graph.Identity.SignIns", 
+$graphModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Users", "Microsoft.Graph.Groups",
+                  "Microsoft.Graph.Identity.DirectoryManagement", "Microsoft.Graph.Identity.SignIns",
                   "Microsoft.Graph.Reports")
 foreach ($modName in $graphModules) {
     if ($requiredModules.ContainsKey($modName)) {
         try {
-            Import-Module $modName -Force -ErrorAction Stop
+            Import-Module $modName -MinimumVersion $requiredModules[$modName] -Force -ErrorAction Stop -WarningAction SilentlyContinue
             Write-Host "  ✔ $modName loaded" -ForegroundColor Green
         } catch {
-            Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
-            Exit
+            # Try to import without version requirement as fallback
+            try {
+                Import-Module $modName -Force -ErrorAction Stop -WarningAction SilentlyContinue
+                Write-Host "  ✔ $modName loaded (using available version)" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
+                Exit
+            }
         }
     }
 }
@@ -1138,7 +1156,15 @@ $htmlReport | Out-File -FilePath $reportPath -Encoding UTF8
 Write-Host "Report saved as: $reportPath" -ForegroundColor Green
 Write-Host ""
 Write-Host "Opening report in default browser..." -ForegroundColor Yellow
-Start-Process $reportPath
+
+# Cross-platform browser opening
+if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    Start-Process $reportPath
+} elseif ($IsMacOS) {
+    & open $reportPath
+} elseif ($IsLinux) {
+    & xdg-open $reportPath
+}
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Cyan
