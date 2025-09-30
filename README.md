@@ -138,6 +138,8 @@ pwsh ./Need4Admin_V1.0.ps1 -TenantId "your-tenant-id" -ClientId "your-app-id" -C
 
 ---
 
+---
+
 ## 🐛 Troubleshooting
 
 ### macOS/Linux Specific Issues
