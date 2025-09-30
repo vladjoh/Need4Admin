@@ -1,0 +1,26 @@
+# Need4Admin Report Files - Contain Sensitive Audit Data
+# These files should NEVER be committed to version control
+
+# HTML Reports
+Need4Admin-Report-*.html
+
+# CSV Exports
+Need4Admin-Export-*.csv
+
+# Reports directory (if used)
+reports/
+*.html
+*.csv
+
+# Claude Code guidance file (local-only)
+CLAUDE.md
+
+# Temporary files
+*.tmp
+*.temp
+
+# macOS
+.DS_Store
+
+# PowerShell
+*.ps1xml

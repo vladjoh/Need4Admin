@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.0-pesip.1
 
 .GUID ade250cd-cc25-4cdd-8432-ad4c1d4561d3
 
@@ -14,36 +14,40 @@
 
 .LICENSEURI
 
-.PROJECTURI
+.PROJECTURI https://github.com/pesip/Need4Admin
 
 .ICONURI
 
-.EXTERNALMODULEDEPENDENCIES 
+.EXTERNALMODULEDEPENDENCIES
 
 .REQUIREDSCRIPTS
 
 .EXTERNALSCRIPTDEPENDENCIES
 
 .RELEASENOTES
-
+Fork: Cross-platform support for macOS/Linux (pesip)
+- Module path detection for non-Windows systems
+- Cross-platform HTML report opening
+- Enhanced module loading with version conflict resolution
 
 .PRIVATEDATA
 
 #>
 
-<# 
+<#
 
-.DESCRIPTION 
- A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting 
+.DESCRIPTION
+ A PowerShell script to audit privileged users in Microsoft Entra ID and Azure with detailed reporting
 
-#> 
+#>
 
 <#
 ==================================================================================================
 Name:           Need4Admin - Microsoft Privileged User Scanner
 Description:    Privileged User Scanner Script for Entra and Azure
-Version:        1.0
-Author:         Vlad Johansen, 2025
+Version:        1.0-pesip.1 (macOS/Linux fork)
+Original:       Vlad Johansen, 2025
+Fork:           pesip, 2025 (cross-platform compatibility)
 ==================================================================================================
 #>
 
@@ -89,7 +93,7 @@ $PrivRoles = @{
 
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host "Need4Admin - Microsoft Privileged User Scanner" -ForegroundColor Yellow
-Write-Host "Version 1.0" -ForegroundColor Green
+Write-Host "Version 1.0-pesip.1 (macOS/Linux fork)" -ForegroundColor Green
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -108,8 +112,13 @@ $requiredModules = @{
 # Check for module availability
 $missingModules = @()
 
-# Ensure CurrentUser module path is included
-$env:PSModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules;$env:PSModulePath"
+# Ensure CurrentUser module path is included (cross-platform)
+if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    $env:PSModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules;$env:PSModulePath"
+} else {
+    # macOS/Linux
+    $env:PSModulePath = "$HOME/.local/share/powershell/Modules:$env:PSModulePath"
+}
 
 foreach ($modName in $requiredModules.Keys) {
     # Refresh of available modules
@@ -155,32 +164,45 @@ if($missingModules.Count -gt 0) {
 # Import required modules
 Write-Host "Loading modules..." -ForegroundColor Yellow
 
-# Load Az modules first
+# Load Az modules first with MinimumVersion to avoid conflicts
 $azModules = @("Az.Accounts", "Az.Resources")
 foreach ($modName in $azModules) {
     if ($requiredModules.ContainsKey($modName)) {
         try {
-            Import-Module $modName -Force -ErrorAction Stop
+            # Use MinimumVersion instead of RequiredVersion for flexibility
+            Import-Module $modName -MinimumVersion $requiredModules[$modName] -Force -ErrorAction Stop -WarningAction SilentlyContinue
             Write-Host "  ✔ $modName loaded" -ForegroundColor Green
         } catch {
-            Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
-            Exit
+            # Try to import without version requirement as fallback
+            try {
+                Import-Module $modName -Force -ErrorAction Stop -WarningAction SilentlyContinue
+                Write-Host "  ✔ $modName loaded (using available version)" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
+                Exit
+            }
         }
     }
 }
 
 # Then load Microsoft.Graph modules
-$graphModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Users", "Microsoft.Graph.Groups", 
-                  "Microsoft.Graph.Identity.DirectoryManagement", "Microsoft.Graph.Identity.SignIns", 
+$graphModules = @("Microsoft.Graph.Authentication", "Microsoft.Graph.Users", "Microsoft.Graph.Groups",
+                  "Microsoft.Graph.Identity.DirectoryManagement", "Microsoft.Graph.Identity.SignIns",
                   "Microsoft.Graph.Reports")
 foreach ($modName in $graphModules) {
     if ($requiredModules.ContainsKey($modName)) {
         try {
-            Import-Module $modName -Force -ErrorAction Stop
+            Import-Module $modName -MinimumVersion $requiredModules[$modName] -Force -ErrorAction Stop -WarningAction SilentlyContinue
             Write-Host "  ✔ $modName loaded" -ForegroundColor Green
         } catch {
-            Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
-            Exit
+            # Try to import without version requirement as fallback
+            try {
+                Import-Module $modName -Force -ErrorAction Stop -WarningAction SilentlyContinue
+                Write-Host "  ✔ $modName loaded (using available version)" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to load $modName : $_" -ForegroundColor Red
+                Exit
+            }
         }
     }
 }
@@ -913,8 +935,20 @@ Write-Host "Tenant ID: $reportTenantId" -ForegroundColor Yellow
 Write-Host "Signed in as: $signedInUser" -ForegroundColor Yellow
 Write-Host ""
 
+# Create reports directory outside of repository (cross-platform)
+$reportsDir = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    Join-Path $env:USERPROFILE "Need4Admin-Reports"
+} else {
+    Join-Path $HOME "Need4Admin-Reports"
+}
+
+if (-not (Test-Path $reportsDir)) {
+    New-Item -ItemType Directory -Path $reportsDir -Force | Out-Null
+    Write-Host "Created reports directory: $reportsDir" -ForegroundColor Yellow
+}
+
 # Save CSV file
-$csvPath = ".\Need4Admin-Export-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').csv"
+$csvPath = Join-Path $reportsDir "Need4Admin-Export-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').csv"
 $privilegedUsers | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
 Write-Host "CSV data saved as: $csvPath" -ForegroundColor Green
 
@@ -1128,17 +1162,25 @@ document.getElementById('searchBox').addEventListener('input', function(e) {
 $htmlReport += "</script>`n"
 
 # Add footer and close HTML
-$htmlReport += "<div class='footer'><p>Need4Admin - Microsoft Privileged User Scanner v1.0 | Author: Vlad Johansen, 2025</p></div>`n"
+$htmlReport += "<div class='footer'><p>Need4Admin - Microsoft Privileged User Scanner v1.0-pesip.1 (macOS/Linux fork) | Original: Vlad Johansen, 2025 | Fork: pesip, 2025</p></div>`n"
 $htmlReport += "</body>`n</html>"
 
 # Save HTML report
-$reportPath = ".\Need4Admin-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').html"
+$reportPath = Join-Path $reportsDir "Need4Admin-Report-$(Get-Date -Format 'yyyy-MM-dd-HHmmss').html"
 $htmlReport | Out-File -FilePath $reportPath -Encoding UTF8
 
-Write-Host "Report saved as: $reportPath" -ForegroundColor Green
+Write-Host "HTML report saved as: $reportPath" -ForegroundColor Green
 Write-Host ""
 Write-Host "Opening report in default browser..." -ForegroundColor Yellow
-Start-Process $reportPath
+
+# Cross-platform browser opening
+if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+    Start-Process $reportPath
+} elseif ($IsMacOS) {
+    & open $reportPath
+} elseif ($IsLinux) {
+    & xdg-open $reportPath
+}
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Cyan
